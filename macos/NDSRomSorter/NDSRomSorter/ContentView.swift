@@ -9,9 +9,9 @@ struct ContentView: View {
     @State private var keepUnknown = false
     @State private var deleteNonUS = false
     @State private var isRunning = false
-    @State private var status = "Choose a folder of Nintendo DS ZIP archives."
+    @State private var status = "Choose a folder of ROM ZIP archives."
     @State private var logText = """
-    Tip: leave Dry Run enabled first. When the log looks right, uncheck Dry Run to move non-US ZIP archives.
+    Tip: leave Dry Run enabled first. When the log looks right, uncheck Dry Run to move non-US ROM ZIP archives.
 
     """
 
@@ -41,10 +41,10 @@ struct ContentView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Nintendo DS US ROM Sorter")
+            Text("US ROM Sorter")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
-            Text("Scans ZIP archives, keeps US releases, and moves or deletes anything not identified as US.")
+            Text("Scans popular console ROM ZIP archives, keeps US releases, and moves or deletes anything not identified as US.")
                 .foregroundStyle(.secondary)
         }
     }
@@ -133,7 +133,7 @@ struct ContentView: View {
     }
 
     private func chooseSourceFolder() {
-        if let selected = chooseFolder(title: "Choose folder containing Nintendo DS ZIP archives") {
+        if let selected = chooseFolder(title: "Choose folder containing ROM ZIP archives") {
             sourceURL = selected
             status = "Ready to scan."
         }
@@ -157,7 +157,7 @@ struct ContentView: View {
 
     private func startSort() {
         guard let sourceURL else {
-            showAlert(title: "Missing folder", message: "Choose a folder containing Nintendo DS ZIP archives.")
+            showAlert(title: "Missing folder", message: "Choose a folder containing ROM ZIP archives.")
             return
         }
 

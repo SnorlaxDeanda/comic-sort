@@ -16,7 +16,7 @@
 		8A1000022C0C000100000001 /* NDSRomSorterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NDSRomSorterApp.swift; sourceTree = "<group>"; };
 		8A1000042C0C000100000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8A1000062C0C000100000001 /* RomSorter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RomSorter.swift; sourceTree = "<group>"; };
-		8A1000072C0C000100000001 /* NDSRomSorter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NDSRomSorter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A1000072C0C000100000001 /* USRomSorter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = USRomSorter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +51,7 @@
 		8A10000B2C0C000100000001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8A1000072C0C000100000001 /* NDSRomSorter.app */,
+				8A1000072C0C000100000001 /* USRomSorter.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,7 +73,7 @@
 			);
 			name = NDSRomSorter;
 			productName = NDSRomSorter;
-			productReference = 8A1000072C0C000100000001 /* NDSRomSorter.app */;
+			productReference = 8A1000072C0C000100000001 /* USRomSorter.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -259,7 +259,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "NDS ROM Sorter";
+				INFOPLIST_KEY_CFBundleDisplayName = "US ROM Sorter";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -268,8 +268,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.NDSRomSorter;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.USRomSorter;
+				PRODUCT_NAME = USRomSorter;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -285,7 +285,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "NDS ROM Sorter";
+				INFOPLIST_KEY_CFBundleDisplayName = "US ROM Sorter";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -294,8 +294,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.NDSRomSorter;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.USRomSorter;
+				PRODUCT_NAME = USRomSorter;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

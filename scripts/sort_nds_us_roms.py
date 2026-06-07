@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep Nintendo DS ROM ZIP archives that are identified as US releases.
+"""Keep ROM ZIP archives that are identified as US releases.
 
 By default this script moves ROM files or ZIP archives that are not identified
 as US releases into a ``discarded_non_us`` folder next to the scanned folder.
@@ -11,18 +11,70 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import sys
 import zipfile
 
 
-SUPPORTED_SUFFIXES = {".nds", ".srl", ".zip"}
+ARCHIVE_SUFFIXES = {".zip"}
+SUPPORTED_ROM_SUFFIXES = {
+    ".3ds",
+    ".a26",
+    ".a52",
+    ".a78",
+    ".bin",
+    ".cdi",
+    ".chd",
+    ".cia",
+    ".ciso",
+    ".cso",
+    ".cue",
+    ".dol",
+    ".elf",
+    ".fds",
+    ".fig",
+    ".gb",
+    ".gba",
+    ".gbc",
+    ".gdi",
+    ".gen",
+    ".gg",
+    ".iso",
+    ".md",
+    ".n64",
+    ".nds",
+    ".nes",
+    ".nsp",
+    ".pbp",
+    ".rvz",
+    ".sfc",
+    ".sg",
+    ".smd",
+    ".smc",
+    ".sms",
+    ".srl",
+    ".swc",
+    ".v64",
+    ".wad",
+    ".wbfs",
+    ".xci",
+    ".z64",
+}
+SUPPORTED_SUFFIXES = ARCHIVE_SUFFIXES | SUPPORTED_ROM_SUFFIXES
+NDS_SUFFIXES = {".nds", ".srl"}
 DEFAULT_DISCARD_DIR = "discarded_non_us"
 
 US_REGION_MARKERS = {
+    "na",
+    "north america",
+    "ntsc u",
+    "ntsc-u",
     "u",
+    "u s",
+    "u s a",
+    "u/c",
     "us",
     "usa",
     "united states",
@@ -36,19 +88,28 @@ NON_US_REGION_MARKERS = {
     "china",
     "chinese",
     "e",
+    "eu",
     "europe",
     "eur",
     "france",
     "germany",
     "italy",
     "j",
+    "jp",
+    "jpn",
     "japan",
     "japanese",
     "korea",
     "korean",
     "netherlands",
+    "ntsc j",
+    "ntsc-j",
     "p",
+    "pal",
+    "russia",
+    "scandinavia",
     "spain",
+    "taiwan",
     "uk",
     "united kingdom",
     "world",
@@ -108,6 +169,19 @@ def bracketed_filename_markers(path: Path) -> list[str]:
     for match in re.findall(r"[\(\[\{]([^\)\]\}]+)[\)\]\}]", path.stem):
         markers.extend(split_region_markers(match))
     return markers
+
+
+def member_suffix(member_name: str) -> str:
+    return PurePosixPath(member_name).suffix.lower()
+
+
+def is_supported_rom_member(member_name: str) -> bool:
+    name = PurePosixPath(member_name).name
+    if not name or name.startswith("."):
+        return False
+    if member_name.startswith("__MACOSX/"):
+        return False
+    return member_suffix(member_name) in SUPPORTED_ROM_SUFFIXES
 
 
 def classify_from_filename(path: Path) -> Classification:
@@ -177,8 +251,23 @@ def classify_from_zip(path: Path) -> Classification:
             for member in archive.infolist():
                 if member.is_dir():
                     continue
-                if Path(member.filename).suffix.lower() not in {".nds", ".srl"}:
+                if not is_supported_rom_member(member.filename):
                     continue
+
+                member_path = Path(PurePosixPath(member.filename).name)
+                member_filename_result = classify_from_filename(member_path)
+                if member_filename_result.decision is not RegionDecision.UNKNOWN:
+                    return Classification(
+                        member_filename_result.decision,
+                        f"zip member '{member.filename}' {member_filename_result.reason}",
+                    )
+
+                if member_suffix(member.filename) not in NDS_SUFFIXES:
+                    return Classification(
+                        RegionDecision.UNKNOWN,
+                        f"zip member '{member.filename}' has no region marker",
+                    )
+
                 with archive.open(member) as rom:
                     result = classify_from_header_bytes(rom.read(16))
                 return Classification(
@@ -188,7 +277,7 @@ def classify_from_zip(path: Path) -> Classification:
     except (OSError, zipfile.BadZipFile) as exc:
         return Classification(RegionDecision.UNKNOWN, f"could not inspect zip: {exc}")
 
-    return Classification(RegionDecision.UNKNOWN, "zip does not contain an NDS ROM")
+    return Classification(RegionDecision.UNKNOWN, "zip does not contain a supported ROM")
 
 
 def classify_rom(path: Path) -> Classification:
@@ -197,10 +286,12 @@ def classify_rom(path: Path) -> Classification:
         return filename_result
 
     suffix = path.suffix.lower()
-    if suffix in {".nds", ".srl"}:
+    if suffix in NDS_SUFFIXES:
         return classify_from_nds_file(path)
     if suffix == ".zip":
         return classify_from_zip(path)
+    if suffix in SUPPORTED_ROM_SUFFIXES:
+        return Classification(RegionDecision.UNKNOWN, "supported ROM has no region marker")
 
     return Classification(RegionDecision.UNKNOWN, "unsupported file type")
 
@@ -333,8 +424,8 @@ def print_action(action: PlannedAction, dry_run: bool) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Move or delete Nintendo DS ROM files or ZIP archives that are not "
-            "identified as US releases."
+            "Move or delete ROM files or ZIP archives for popular consoles "
+            "that are not identified as US releases."
         ),
     )
     parser.add_argument(

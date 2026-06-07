@@ -1,14 +1,23 @@
-# Nintendo DS US ROM Sorter
+# US ROM Sorter
 
-This repository contains a native macOS app that scans Nintendo DS ROM ZIP
-archives and discards any archives that are not identified as US releases.
+This repository contains a native macOS app that scans ROM ZIP archives for
+popular game consoles and discards any archives that are not identified as US
+releases.
 
 The app supports:
 
-- `.zip` archives containing an `.nds` or `.srl` file, without extracting them
-- loose `.nds` and `.srl` ROM files, if you ever have any
-- common filename markers such as `(USA)`, `(U)`, `(Europe)`, and `(Japan)`
-- Nintendo DS header destination codes when a filename has no region marker
+- `.zip` archives containing supported ROM files, without extracting the whole
+  archive
+- loose ROM files, if you ever have any
+- common region markers such as `(USA)`, `(U)`, `(NTSC-U)`, `(Europe)`,
+  `(PAL)`, and `(Japan)`
+- Nintendo DS header destination codes when an NDS filename has no region
+  marker
+
+Supported console families include Nintendo handhelds and consoles, Sega
+systems, PlayStation/PSP, Xbox-style disc images, Atari cartridge formats, and
+common disc/archive formats such as `.iso`, `.chd`, `.cue`, `.gdi`, `.rvz`,
+`.wbfs`, `.cso`, and `.pbp`.
 
 ## Requirements
 
@@ -27,7 +36,7 @@ the `unzip` tool that ships with macOS to inspect ZIP archives.
 In the app:
 
 1. Click **Choose...** under **ROM ZIP Folder** and choose the folder containing
-   your Nintendo DS ZIP archives.
+   your ROM ZIP archives.
 2. Leave **Dry Run only** checked and click **Scan / Sort**.
 3. Review the results log to confirm which ZIP archives would move.
 4. Uncheck **Dry Run only** and click **Scan / Sort** again to move non-US ZIP
@@ -43,7 +52,7 @@ In Xcode:
 
 1. Choose **Product > Archive**.
 2. When the archive opens, choose **Distribute App**.
-3. Choose **Copy App** to export a standalone `NDSRomSorter.app`.
+3. Choose **Copy App** to export a standalone `USRomSorter.app`.
 
 You can then move that `.app` into `/Applications`.
 
@@ -55,7 +64,7 @@ rules. You do not need it to run the native macOS app.
 ### Safe preview
 
 ```sh
-python3 scripts/sort_nds_us_roms.py --dry-run "/path/to/NDS ZIPs"
+python3 scripts/sort_nds_us_roms.py --dry-run "/path/to/ROM ZIPs"
 ```
 
 ### Move non-US ZIP archives into a discard folder
@@ -64,7 +73,7 @@ By default, non-US and unknown-region ZIP archives are moved into a
 `discarded_non_us` folder next to the scanned folder:
 
 ```sh
-python3 scripts/sort_nds_us_roms.py "/path/to/NDS ZIPs"
+python3 scripts/sort_nds_us_roms.py "/path/to/ROM ZIPs"
 ```
 
 To choose a specific discard folder:
@@ -72,7 +81,7 @@ To choose a specific discard folder:
 ```sh
 python3 scripts/sort_nds_us_roms.py \
   --discard-dir "/path/to/non-us-roms" \
-  "/path/to/NDS ZIPs"
+  "/path/to/ROM ZIPs"
 ```
 
 ### Permanently delete non-US ZIP archives
@@ -81,7 +90,7 @@ Only use `--delete` after you have reviewed a dry run. This deletes the whole
 ZIP archive for each non-US match:
 
 ```sh
-python3 scripts/sort_nds_us_roms.py --delete "/path/to/NDS ZIPs"
+python3 scripts/sort_nds_us_roms.py --delete "/path/to/ROM ZIPs"
 ```
 
 ### Keep unknown-region ZIP archives
@@ -91,7 +100,7 @@ If you would rather keep uncertain files for manual review, add
 `--keep-unknown`:
 
 ```sh
-python3 scripts/sort_nds_us_roms.py --keep-unknown "/path/to/NDS ZIPs"
+python3 scripts/sort_nds_us_roms.py --keep-unknown "/path/to/ROM ZIPs"
 ```
 
 ## Run tests

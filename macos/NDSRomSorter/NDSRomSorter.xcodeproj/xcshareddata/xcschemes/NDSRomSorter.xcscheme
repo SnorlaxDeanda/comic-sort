@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8A10000C2C0C000100000001"
-               BuildableName = "NDSRomSorter.app"
+               BuildableName = "USRomSorter.app"
                BlueprintName = "NDSRomSorter"
                ReferencedContainer = "container:NDSRomSorter.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8A10000C2C0C000100000001"
-            BuildableName = "NDSRomSorter.app"
+            BuildableName = "USRomSorter.app"
             BlueprintName = "NDSRomSorter"
             ReferencedContainer = "container:NDSRomSorter.xcodeproj">
          </BuildableReference>
@@ -63,7 +63,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8A10000C2C0C000100000001"
-            BuildableName = "NDSRomSorter.app"
+            BuildableName = "USRomSorter.app"
             BlueprintName = "NDSRomSorter"
             ReferencedContainer = "container:NDSRomSorter.xcodeproj">
          </BuildableReference>

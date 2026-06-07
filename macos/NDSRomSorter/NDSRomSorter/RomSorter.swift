@@ -73,10 +73,61 @@ enum SorterError: LocalizedError {
 }
 
 final class RomSorter {
-    private let supportedExtensions = Set(["zip", "nds", "srl"])
+    private let archiveExtensions = Set(["zip"])
+    private let supportedROMExtensions = Set([
+        "3ds",
+        "a26",
+        "a52",
+        "a78",
+        "bin",
+        "cdi",
+        "chd",
+        "cia",
+        "ciso",
+        "cso",
+        "cue",
+        "dol",
+        "elf",
+        "fds",
+        "fig",
+        "gb",
+        "gba",
+        "gbc",
+        "gdi",
+        "gen",
+        "gg",
+        "iso",
+        "md",
+        "n64",
+        "nds",
+        "nes",
+        "nsp",
+        "pbp",
+        "rvz",
+        "sfc",
+        "sg",
+        "smd",
+        "smc",
+        "sms",
+        "srl",
+        "swc",
+        "v64",
+        "wad",
+        "wbfs",
+        "xci",
+        "z64",
+    ])
+    private let ndsExtensions = Set(["nds", "srl"])
     private let defaultDiscardFolderName = "discarded_non_us"
     private let usRegionMarkers = Set([
+        "na",
+        "north america",
+        "ntsc u",
+        "ntsc-u",
         "u",
+        "u s",
+        "u s a",
+        "u/c",
         "us",
         "usa",
         "united states",
@@ -89,19 +140,28 @@ final class RomSorter {
         "china",
         "chinese",
         "e",
+        "eu",
         "europe",
         "eur",
         "france",
         "germany",
         "italy",
         "j",
+        "jp",
+        "jpn",
         "japan",
         "japanese",
         "korea",
         "korean",
         "netherlands",
+        "ntsc j",
+        "ntsc-j",
         "p",
+        "pal",
+        "russia",
+        "scandinavia",
         "spain",
+        "taiwan",
         "uk",
         "united kingdom",
         "world",
@@ -175,7 +235,8 @@ final class RomSorter {
         if relativePath.split(separator: "/").contains(Substring(defaultDiscardFolderName)) {
             return false
         }
-        return supportedExtensions.contains(url.pathExtension.lowercased())
+        return archiveExtensions.contains(url.pathExtension.lowercased())
+            || supportedROMExtensions.contains(url.pathExtension.lowercased())
     }
 
     private func planActions(
@@ -223,10 +284,12 @@ final class RomSorter {
         }
 
         switch url.pathExtension.lowercased() {
-        case "nds", "srl":
+        case let ext where ndsExtensions.contains(ext):
             return classifyLooseROM(url)
         case "zip":
             return classifyZip(url)
+        case let ext where supportedROMExtensions.contains(ext):
+            return Classification(decision: .unknown, reason: "supported ROM has no region marker")
         default:
             return Classification(decision: .unknown, reason: "unsupported file type")
         }
@@ -313,9 +376,26 @@ final class RomSorter {
             let members = try zipMembers(in: url)
             guard let romMember = members.first(where: { member in
                 let ext = URL(fileURLWithPath: member).pathExtension.lowercased()
-                return ext == "nds" || ext == "srl"
+                return isSupportedROMMember(member) && supportedROMExtensions.contains(ext)
             }) else {
-                return Classification(decision: .unknown, reason: "zip does not contain an NDS ROM")
+                return Classification(decision: .unknown, reason: "zip does not contain a supported ROM")
+            }
+
+            let memberFilename = URL(fileURLWithPath: romMember).lastPathComponent
+            let memberFilenameResult = classifyFromFilename(URL(fileURLWithPath: memberFilename))
+            if memberFilenameResult.decision != .unknown {
+                return Classification(
+                    decision: memberFilenameResult.decision,
+                    reason: "zip member '\(romMember)' \(memberFilenameResult.reason)"
+                )
+            }
+
+            let ext = URL(fileURLWithPath: romMember).pathExtension.lowercased()
+            guard ndsExtensions.contains(ext) else {
+                return Classification(
+                    decision: .unknown,
+                    reason: "zip member '\(romMember)' has no region marker"
+                )
             }
 
             let header = try zipMemberHeader(archiveURL: url, member: romMember)
@@ -324,6 +404,17 @@ final class RomSorter {
         } catch {
             return Classification(decision: .unknown, reason: "could not inspect zip: \(error.localizedDescription)")
         }
+    }
+
+    private func isSupportedROMMember(_ member: String) -> Bool {
+        let lastComponent = URL(fileURLWithPath: member).lastPathComponent
+        if lastComponent.isEmpty || lastComponent.hasPrefix(".") {
+            return false
+        }
+        if member.hasPrefix("__MACOSX/") {
+            return false
+        }
+        return supportedROMExtensions.contains(URL(fileURLWithPath: member).pathExtension.lowercased())
     }
 
     private func classifyHeader(_ header: Data) -> Classification {

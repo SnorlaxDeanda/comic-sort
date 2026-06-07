@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -12,6 +13,7 @@ SPEC = importlib.util.spec_from_file_location("sort_nds_us_roms", SCRIPT_PATH)
 assert SPEC is not None
 sort_nds_us_roms = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
+sys.modules[SPEC.name] = sort_nds_us_roms
 SPEC.loader.exec_module(sort_nds_us_roms)
 
 

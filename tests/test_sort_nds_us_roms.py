@@ -118,6 +118,25 @@ class SortNdsUsRomsTests(unittest.TestCase):
             self.assertFalse(rom.exists())
             self.assertTrue(destination.exists())
 
+    def test_format_action_for_dry_run_move(self) -> None:
+        source = Path("/roms/game.zip")
+        destination = Path("/roms/discarded_non_us/game.zip")
+        action = sort_nds_us_roms.PlannedAction(
+            source,
+            sort_nds_us_roms.Classification(
+                sort_nds_us_roms.RegionDecision.NON_US,
+                "zip member 'game.nds' header destination code J (Japan)",
+            ),
+            "move",
+            destination,
+        )
+
+        formatted = sort_nds_us_roms.format_action(action, dry_run=True)
+
+        self.assertIn("WOULD MOVE", formatted)
+        self.assertIn(str(source), formatted)
+        self.assertIn(str(destination), formatted)
+
 
 if __name__ == "__main__":
     unittest.main()

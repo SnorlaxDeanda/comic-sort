@@ -313,15 +313,21 @@ def apply_action(action: PlannedAction, dry_run: bool) -> None:
     raise ValueError(f"unknown action {action.action!r}")
 
 
-def print_action(action: PlannedAction, dry_run: bool) -> None:
+def format_action(action: PlannedAction, dry_run: bool) -> str:
     prefix = "WOULD " if dry_run and action.action != "keep" else ""
     reason = action.classification.reason
     if action.action == "keep":
-        print(f"KEEP    {action.path} ({reason})")
-    elif action.action == "delete":
-        print(f"{prefix}DELETE  {action.path} ({reason})")
-    elif action.action == "move":
-        print(f"{prefix}MOVE    {action.path} -> {action.destination} ({reason})")
+        return f"KEEP    {action.path} ({reason})"
+    if action.action == "delete":
+        return f"{prefix}DELETE  {action.path} ({reason})"
+    if action.action == "move":
+        return f"{prefix}MOVE    {action.path} -> {action.destination} ({reason})"
+
+    raise ValueError(f"unknown action {action.action!r}")
+
+
+def print_action(action: PlannedAction, dry_run: bool) -> None:
+    print(format_action(action, dry_run))
 
 
 def build_parser() -> argparse.ArgumentParser:

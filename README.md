@@ -13,11 +13,36 @@ The script supports:
 ## Requirements
 
 - Python 3.10 or newer
+- Tkinter for the GUI
 
-No third-party packages are required, so it works on Apple Silicon Macs as long
-as `python3` is available.
+No third-party packages are required. On macOS, the Python installer from
+[python.org](https://www.python.org/downloads/macos/) includes Tkinter, which
+the GUI uses.
 
-## Safe preview
+## Run the GUI
+
+On your Mac, open Terminal in this repository and run:
+
+```sh
+python3 scripts/sort_nds_us_roms_gui.py
+```
+
+In the window:
+
+1. Click **Browse...** under **ROM ZIP folder** and choose the folder containing
+   your Nintendo DS ZIP archives.
+2. Leave **Dry run only** checked and click **Scan / Sort**.
+3. Review the results log to confirm which ZIP archives would move.
+4. Uncheck **Dry run only** and click **Scan / Sort** again to move non-US ZIP
+   archives into `discarded_non_us`.
+
+The GUI also lets you choose a custom discard folder, search subfolders, keep
+unknown-region ZIP archives, or delete non-US ZIP archives instead of moving
+them.
+
+## Run from Terminal
+
+### Safe preview
 
 Run a dry run first so you can see exactly which ZIP archives would be moved:
 
@@ -25,7 +50,7 @@ Run a dry run first so you can see exactly which ZIP archives would be moved:
 python3 scripts/sort_nds_us_roms.py --dry-run "/path/to/NDS ZIPs"
 ```
 
-## Move non-US ZIP archives into a discard folder
+### Move non-US ZIP archives into a discard folder
 
 By default, non-US and unknown-region ZIP archives are moved into a
 `discarded_non_us` folder next to the scanned folder:
@@ -42,7 +67,7 @@ python3 scripts/sort_nds_us_roms.py \
   "/path/to/NDS ZIPs"
 ```
 
-## Permanently delete non-US ZIP archives
+### Permanently delete non-US ZIP archives
 
 Only use `--delete` after you have reviewed a dry run. This deletes the whole
 ZIP archive for each non-US match:
@@ -51,7 +76,7 @@ ZIP archive for each non-US match:
 python3 scripts/sort_nds_us_roms.py --delete "/path/to/NDS ZIPs"
 ```
 
-## Keep unknown-region ZIP archives
+### Keep unknown-region ZIP archives
 
 The default is strict: anything that cannot be identified as US is discarded.
 If you would rather keep uncertain files for manual review, add

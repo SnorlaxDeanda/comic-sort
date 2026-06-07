@@ -21,6 +21,11 @@ def fake_nds_header(destination_code: str) -> bytes:
     return b"FAKE GAME   ABC" + destination_code.encode("ascii") + b"\0" * 32
 
 
+def write_zipped_rom(path: Path, destination_code: str) -> None:
+    with zipfile.ZipFile(path, "w") as zip_file:
+        zip_file.writestr("game.nds", fake_nds_header(destination_code))
+
+
 class SortNdsUsRomsTests(unittest.TestCase):
     def test_classifies_us_filename_marker(self) -> None:
         result = sort_nds_us_roms.classify_rom(Path("Mario Kart DS (USA).nds"))
@@ -44,12 +49,38 @@ class SortNdsUsRomsTests(unittest.TestCase):
     def test_inspects_nds_header_inside_zip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             archive = Path(tmp) / "unmarked.zip"
-            with zipfile.ZipFile(archive, "w") as zip_file:
-                zip_file.writestr("game.nds", fake_nds_header("J"))
+            write_zipped_rom(archive, "J")
 
             result = sort_nds_us_roms.classify_rom(archive)
 
         self.assertEqual(result.decision, sort_nds_us_roms.RegionDecision.NON_US)
+
+    def test_folder_of_zip_archives_moves_non_us_zip(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            us_zip = root / "kept.zip"
+            non_us_zip = root / "discarded.zip"
+            write_zipped_rom(us_zip, "E")
+            write_zipped_rom(non_us_zip, "J")
+
+            roms = sort_nds_us_roms.iter_roms(
+                [root],
+                recursive=True,
+                discard_dir_name=sort_nds_us_roms.DEFAULT_DISCARD_DIR,
+            )
+            actions = sort_nds_us_roms.plan_actions(
+                roms,
+                sources=[root],
+                discard_dir=None,
+                keep_unknown=False,
+                delete=False,
+            )
+            for action in actions:
+                sort_nds_us_roms.apply_action(action, dry_run=False)
+
+            self.assertTrue(us_zip.exists())
+            self.assertFalse(non_us_zip.exists())
+            self.assertTrue((root / "discarded_non_us" / non_us_zip.name).exists())
 
     def test_plan_moves_unknown_roms_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

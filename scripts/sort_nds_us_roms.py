@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Keep Nintendo DS ROMs that are identified as US releases.
+"""Keep Nintendo DS ROM ZIP archives that are identified as US releases.
 
-By default this script moves ROM files that are not identified as US releases
-into a ``discarded_non_us`` folder next to the scanned folder. Use ``--dry-run``
-first to preview changes.
+By default this script moves ROM files or ZIP archives that are not identified
+as US releases into a ``discarded_non_us`` folder next to the scanned folder.
+Use ``--dry-run`` first to preview changes.
 """
 
 from __future__ import annotations
@@ -326,13 +326,19 @@ def print_action(action: PlannedAction, dry_run: bool) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Move or delete Nintendo DS ROMs that are not identified as US releases.",
+        description=(
+            "Move or delete Nintendo DS ROM files or ZIP archives that are not "
+            "identified as US releases."
+        ),
     )
     parser.add_argument(
         "paths",
         nargs="+",
         type=Path,
-        help="ROM files or folders to scan. Supports .nds, .srl, and .zip files.",
+        help=(
+            "ROM files, ZIP archives, or folders to scan. ZIP archives are "
+            "inspected without extracting them."
+        ),
     )
     parser.add_argument(
         "--discard-dir",

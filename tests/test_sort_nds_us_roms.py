@@ -21,9 +21,14 @@ def fake_nds_header(destination_code: str) -> bytes:
     return b"FAKE GAME   ABC" + destination_code.encode("ascii") + b"\0" * 32
 
 
-def write_zipped_rom(path: Path, destination_code: str) -> None:
+def write_zipped_nds_rom(path: Path, destination_code: str, member_name: str = "game.nds") -> None:
     with zipfile.ZipFile(path, "w") as zip_file:
-        zip_file.writestr("game.nds", fake_nds_header(destination_code))
+        zip_file.writestr(member_name, fake_nds_header(destination_code))
+
+
+def write_zip_member(path: Path, member_name: str, content: bytes = b"fake rom") -> None:
+    with zipfile.ZipFile(path, "w") as zip_file:
+        zip_file.writestr(member_name, content)
 
 
 class SortNdsUsRomsTests(unittest.TestCase):
@@ -49,19 +54,47 @@ class SortNdsUsRomsTests(unittest.TestCase):
     def test_inspects_nds_header_inside_zip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             archive = Path(tmp) / "unmarked.zip"
-            write_zipped_rom(archive, "J")
+            write_zipped_nds_rom(archive, "J")
 
             result = sort_nds_us_roms.classify_rom(archive)
 
         self.assertEqual(result.decision, sort_nds_us_roms.RegionDecision.NON_US)
+
+    def test_classifies_non_nds_zip_from_archive_filename(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "Sonic the Hedgehog (USA).zip"
+            write_zip_member(archive, "Sonic the Hedgehog.md")
+
+            result = sort_nds_us_roms.classify_rom(archive)
+
+        self.assertEqual(result.decision, sort_nds_us_roms.RegionDecision.US)
+
+    def test_classifies_non_nds_zip_from_member_filename(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "unmarked.zip"
+            write_zip_member(archive, "Super Mario World (Europe).sfc")
+
+            result = sort_nds_us_roms.classify_rom(archive)
+
+        self.assertEqual(result.decision, sort_nds_us_roms.RegionDecision.NON_US)
+
+    def test_unknown_for_supported_non_nds_rom_without_region_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "unmarked.zip"
+            write_zip_member(archive, "game.iso")
+
+            result = sort_nds_us_roms.classify_rom(archive)
+
+        self.assertEqual(result.decision, sort_nds_us_roms.RegionDecision.UNKNOWN)
+        self.assertIn("no region marker", result.reason)
 
     def test_folder_of_zip_archives_moves_non_us_zip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             us_zip = root / "kept.zip"
             non_us_zip = root / "discarded.zip"
-            write_zipped_rom(us_zip, "E")
-            write_zipped_rom(non_us_zip, "J")
+            write_zipped_nds_rom(us_zip, "E")
+            write_zipped_nds_rom(non_us_zip, "J")
 
             roms = sort_nds_us_roms.iter_roms(
                 [root],

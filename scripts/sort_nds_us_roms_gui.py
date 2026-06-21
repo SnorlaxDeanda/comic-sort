@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Graphical front end for the Nintendo DS US ROM ZIP sorter."""
+"""Graphical front end for the US ROM ZIP sorter."""
 
 from __future__ import annotations
 
@@ -40,9 +40,9 @@ class SorterGui:
         self.delete = self.tk.BooleanVar(value=False)
         self.keep_unknown = self.tk.BooleanVar(value=False)
         self.recursive = self.tk.BooleanVar(value=True)
-        self.status = self.tk.StringVar(value="Choose a folder of Nintendo DS ZIP archives.")
+        self.status = self.tk.StringVar(value="Choose a folder of ROM ZIP archives.")
 
-        self.root.title("Nintendo DS US ROM Sorter")
+        self.root.title("US ROM Sorter")
         self.root.minsize(760, 520)
         self._build()
         self._poll_events()
@@ -138,7 +138,7 @@ class SorterGui:
         self.write_log(note)
 
     def choose_source(self) -> None:
-        selected = self.filedialog.askdirectory(title="Choose folder containing NDS ZIP archives")
+        selected = self.filedialog.askdirectory(title="Choose folder containing ROM ZIP archives")
         if selected:
             self.source_path.set(selected)
 
@@ -160,7 +160,7 @@ class SorterGui:
 
         source = self.source_path.get().strip()
         if not source:
-            self.messagebox.showerror("Missing folder", "Choose a folder of Nintendo DS ZIP archives.")
+            self.messagebox.showerror("Missing folder", "Choose a folder of ROM ZIP archives.")
             return
 
         source_path = Path(source).expanduser()
